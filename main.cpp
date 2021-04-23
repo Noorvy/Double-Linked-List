@@ -13,25 +13,22 @@ int main()
 
     auto it = List<std::string>::Iterator(list);
 
-    it.begin();
     try{
         for(auto i : it){
             std::cout << i << std::endl;
         }
-       //std::cout << it << std::endl;
     }
     catch(const std::exception &exept){
         std::cout << exept.what() << std::endl;
     }
 
-    it.print();
+    std::cout << it.size() << std::endl;
     list.print_all();
     list.push_back("cheture");
     list.push_back("pyat'");
 
     std::cout << "add some nodes to list" << std::endl;
-    it.end();
-    it.print();
+
     try{
         for(auto i : it) {
             std::cout << i << std::endl;
@@ -41,6 +38,22 @@ int main()
         std::cout << exept.what() << std::endl;
     }
 
+    std::cout << it.size() << std::endl;
+    list.print_all();
+
+    list.push_back("shest'");
+    list.push_back("sem'");
+
+    std::cout << it.size() << std::endl;
+
+
+    list.print_all();
+
+    list.push_back("vosem'");
+    list.push_back("devayt'");
+
+    std::cout << it.size() << std::endl;
+    list.print_all();
 
     return 0;
 }

@@ -32,7 +32,9 @@ public:
         class Iterator
         {
         public:
-            explicit Iterator(List<T> &list) {
+            const T &front;
+            const T &back;
+            explicit Iterator(List<T> &list) : front{ list.begin->data }, back{ list.end->data } {
                     beginIt = list.begin; }  //"Привязываемся" к списку
             //Возврат итератора с текущим указателем элемаента на начале
             Iterator begin(){
@@ -45,34 +47,33 @@ public:
                 if(this->beginIt != nullptr) {
                     endIt = beginIt;
                     while(endIt->next != nullptr){
-                        endIt = endIt->next; }
-                    endIt->next = &empty;
-                    currentIt = &empty;
+                        endIt = endIt->next;}
+                    currentIt = endIt;
                     return *this; }
                 throw std::runtime_error("List is empty!"); }
             //Перегрузка посфиксного и префиксного инкремента
             Iterator &operator++(int){
                 if(currentIt != endIt){
                     this->currentIt = currentIt->next;
-                    size++;
+                    this->size_iterator++;
                     return *this; }
                 throw std::runtime_error("Debug ++(int)"); }
             Iterator &operator ++() {
                 if(currentIt->next != nullptr) {
-                    this->currentIt = currentIt->next;
-                    size++;
+                    currentIt = currentIt->next;
+                    size_iterator++;
                     return *this; }
                 throw std::runtime_error("Debug ++()"); }
             //Перегрузка посфиксного и префиксного декремента
             Iterator &operator--(int) {
                 if(currentIt != beginIt) {
                     this->currentIt = currentIt->prev;
-                    size--; }
+                    size_iterator--; }
                 return *this; }
             Iterator &operator--() {
                 if(currentIt != beginIt) {
                     this->currentIt = currentIt->prev;
-                    size--; }
+                    size_iterator--; }
                 return *this; }
             //Перегрузка оператора вывода
             friend std::ostream &operator<<(std::ostream &out, const Iterator &it){
@@ -88,12 +89,20 @@ public:
            Iterator operator*() { return *this; }
            Iterator *operator->() { return this; }
 
-           void print(){ std::cout << "Node: " << endIt->data << std::endl; }
+           void print(){ std::cout << "end node of iterator: " << endIt->data << std::endl; }
+           //Размер итератора
+           size_t size(){
+               if(this->beginIt != nullptr){
+                   size_iterator = 1;
+                   currentIt = beginIt;
+                   while(currentIt->next != nullptr){
+                       currentIt = currentIt->next;
+                       size_iterator++; }
+                    return this->size_iterator; }
+               throw std::runtime_error("List is empty!"); }
         private:
-            //T &front;
-            //T &back;
-            size_t size{ 0 };
-            elementList<T> empty;
+            size_t size_iterator{ 0 };
+            elementList<T> last;
             elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
             elementList<T> *beginIt{ nullptr };   //Начальный элемент итератора
             elementList<T> *endIt{ nullptr };    //Конечный элемент итератора(следующий после конца списка)
@@ -179,8 +188,8 @@ void List<T>::show_node(uint32_t index) {
 
 template <class T>
 void List<T>::print_all() {
-                for (auto curPos = begin; curPos != nullptr; curPos = curPos->next) {
-                        std::cout << " node is: " << curPos->data << std::endl;
+                for (auto curPos = begin; curPos != end->next ; curPos = curPos->next) {
+                        std::cout << "List node is: " << curPos->data << std::endl;
                 }
 }
 
