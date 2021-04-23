@@ -11,6 +11,12 @@ public:
         elementList<T> *next{ nullptr };  //ptr to next element
         explicit elementList(const T& datastr) : data{ datastr } {}
         elementList(){}
+        elementList<T> &operator=(const elementList<T> &el){
+            this->data = el.data;
+            this->prev = el.prev;
+            this->next = el.next;
+            return *this;
+        }
 };
 
 
@@ -26,11 +32,11 @@ public:
         class Iterator
         {
         public:
-            explicit Iterator(List<T> list) {
+            explicit Iterator(List<T> &list) {
                     beginIt = list.begin;   //"Привязываемся" к списку
                     //currentIt = beginIt;
-                    currentIt = list.end;
-                    endIt = currentIt->next; }
+                    endIt = list.end;
+                    endIt->next = &empty; }
                     //endIt->prev = list.end; } //Последний элеиент итератора "пустой", но он указвает на последний элемент списка
             //Возврат итератора с текущим указателем элемаента на начале
             Iterator begin(){
@@ -41,21 +47,26 @@ public:
             //Возврат итератора с текущим указателем элемаента на конце
             Iterator end() {
                 if(this->beginIt != nullptr) {
-                    currentIt = endIt;
+                    currentIt = beginIt;
+                    while(currentIt->next != nullptr){
+                        currentIt = currentIt->next; }
+                    endIt = currentIt;
+                    currentIt = &empty;
                     return *this; }
                 throw std::runtime_error("List is empty!"); }
             //Перегрузка посфиксного и префиксного инкремента
             Iterator &operator++(int){
-                if(currentIt != endIt && currentIt != nullptr){
+                if(currentIt != endIt){
                     this->currentIt = currentIt->next;
                     size++;
                     return *this; }
-                throw std::runtime_error("Debug"); }
+                throw std::runtime_error("Debug ++(int)"); }
             Iterator &operator ++() {
-                if(currentIt != endIt) {
+                if(currentIt->next != nullptr) {
                     this->currentIt = currentIt->next;
-                    size++; }
-                return *this; }
+                    size++;
+                    return *this; }
+                throw std::runtime_error("Debug ++()"); }
             //Перегрузка посфиксного и префиксного декремента
             Iterator &operator--(int) {
                 if(currentIt != beginIt) {
@@ -81,10 +92,13 @@ public:
            Iterator operator*() { return *this; }
            Iterator *operator->() { return this; }
 
+           void print(){ std::cout << "Node: " << endIt->data << std::endl; }
         private:
             //T &front;
             //T &back;
             size_t size{ 0 };
+            elementList<T> empty;
+            elementList<T> help;
             elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
             elementList<T> *beginIt{ nullptr };   //Начальный элемент итератора
             elementList<T> *endIt{ nullptr };    //Конечный элемент итератора(следующий после конца списка)
