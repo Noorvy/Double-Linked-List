@@ -2,7 +2,7 @@
 #include "list.h"
 #include <array>
 ///////////////////////////////////////////////////////////////////////////////////////////
-//Пробный коммит
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 int main()
 {
@@ -11,11 +11,7 @@ int main()
     list.push_back("dva");
     list.push_back("tri");
 
-    List<std::string> lst;
-    lst.push_back("raz");
-
     auto it = List<std::string>::Iterator(list);
-    auto itr = List<std::string>::Iterator(lst);
 
     it.begin();
     try{
@@ -34,6 +30,7 @@ int main()
     list.push_back("pyat'");
 
     std::cout << "add some nodes to list" << std::endl;
+    it.end();
     it.print();
     try{
         for(auto i : it) {

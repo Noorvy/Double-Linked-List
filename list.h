@@ -33,11 +33,7 @@ public:
         {
         public:
             explicit Iterator(List<T> &list) {
-                    beginIt = list.begin;   //"Привязываемся" к списку
-                    //currentIt = beginIt;
-                    endIt = list.end;
-                    endIt->next = &empty; }
-                    //endIt->prev = list.end; } //Последний элеиент итератора "пустой", но он указвает на последний элемент списка
+                    beginIt = list.begin; }  //"Привязываемся" к списку
             //Возврат итератора с текущим указателем элемаента на начале
             Iterator begin(){
                 if(this->beginIt != nullptr) {
@@ -47,10 +43,10 @@ public:
             //Возврат итератора с текущим указателем элемаента на конце
             Iterator end() {
                 if(this->beginIt != nullptr) {
-                    currentIt = beginIt;
-                    while(currentIt->next != nullptr){
-                        currentIt = currentIt->next; }
-                    endIt = currentIt;
+                    endIt = beginIt;
+                    while(endIt->next != nullptr){
+                        endIt = endIt->next; }
+                    endIt->next = &empty;
                     currentIt = &empty;
                     return *this; }
                 throw std::runtime_error("List is empty!"); }
@@ -98,7 +94,6 @@ public:
             //T &back;
             size_t size{ 0 };
             elementList<T> empty;
-            elementList<T> help;
             elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
             elementList<T> *beginIt{ nullptr };   //Начальный элемент итератора
             elementList<T> *endIt{ nullptr };    //Конечный элемент итератора(следующий после конца списка)
