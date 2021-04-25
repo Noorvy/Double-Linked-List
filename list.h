@@ -39,9 +39,7 @@ public:
             const T &back;
             explicit Iterator(List<T> &list) : front{ list.begin->data }, back{ list.end->data } {
                     beginIt = list.begin;
-                    endIt = list.end;
-                    //endIt->next = nullptr;
-            }  //"Привязываемся" к списку
+                    endIt = list.end;}  //"Привязываемся" к списку
             //Возврат итератора с текущим указателем элемаента на начале
             Iterator begin(){
                 if(this->beginIt != nullptr) {
@@ -95,22 +93,15 @@ public:
            void print(){ std::cout << "end node of iterator: " << endIt->data << std::endl; }
            //Размер итератора
            size_t size(){
-               if(this->beginIt != nullptr){
-//                   endIt->next = nullptr;
-
+               if(endIt->next == &last) {
+                    endIt->next = nullptr; }
+               if(this->beginIt != nullptr) {
                    endIt = beginIt;
-                   while(endIt->next != nullptr){
-                       if(endIt->next == &last){
-                           size_iterator = 0;
-                       }
-                       endIt = endIt->next; }
-
                    size_iterator = 0;
                    currentIt = beginIt;
-                   while(currentIt != nullptr){
+                   while(currentIt != nullptr) {
                        currentIt = currentIt->next;
                        size_iterator++; }
-
                     return this->size_iterator; }
                throw std::runtime_error("List is empty!"); }
         private:
@@ -141,8 +132,6 @@ void List<T>::push_back(const T& str) {
         end = newElem;
         count++;
 }
-//
-//[] [] [] [] [] []
 //Add node to number of list (index)
 template <class T>
 void List<T>::insert(const T& str, uint32_t index) {
@@ -160,8 +149,6 @@ void List<T>::insert(const T& str, uint32_t index) {
 }
 
 //Delete node
-//[] [] [] [] [] []
-// []
 template <class T>
 void List<T>::delete_node(uint32_t index) {
         if (index > count) {

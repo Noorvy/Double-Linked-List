@@ -55,5 +55,16 @@ int main()
     std::cout << it.size() << std::endl;
     list.print_all();
 
+    try{
+        for(auto i : it) {
+            std::cout << i << std::endl;
+        }
+    }
+    catch(const std::exception &exept){
+        std::cout << exept.what() << std::endl;
+    }
+
+    std::cout << it.size() << std::endl;
+
     return 0;
 }
