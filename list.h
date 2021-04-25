@@ -12,10 +12,13 @@ public:
         explicit elementList(const T& datastr) : data{ datastr } {}
         elementList(){}
         elementList<T> &operator=(const elementList<T> &el){
-            this->data = el.data;
-            this->prev = el.prev;
-            this->next = el.next;
+            this->data = &el.data;
+            this->prev = &el.prev;
+            this->next = &el.next;
             return *this;
+        }
+        friend bool &operator ==(const elementList<T> &e1, const elementList<T> &e2){
+            return (e1.data==e2.data && e1.prev==e2.prev && e1.next==e2.next);
         }
 };
 
@@ -35,7 +38,10 @@ public:
             const T &front;
             const T &back;
             explicit Iterator(List<T> &list) : front{ list.begin->data }, back{ list.end->data } {
-                    beginIt = list.begin; }  //"Привязываемся" к списку
+                    beginIt = list.begin;
+                    endIt = list.end;
+                    //endIt->next = nullptr;
+            }  //"Привязываемся" к списку
             //Возврат итератора с текущим указателем элемаента на начале
             Iterator begin(){
                 if(this->beginIt != nullptr) {
@@ -48,32 +54,29 @@ public:
                     endIt = beginIt;
                     while(endIt->next != nullptr){
                         endIt = endIt->next;}
-                    currentIt = endIt;
+                    endIt->next = &last;
+                    currentIt = endIt->next;
                     return *this; }
                 throw std::runtime_error("List is empty!"); }
             //Перегрузка посфиксного и префиксного инкремента
             Iterator &operator++(int){
                 if(currentIt != endIt){
                     this->currentIt = currentIt->next;
-                    this->size_iterator++;
                     return *this; }
                 throw std::runtime_error("Debug ++(int)"); }
             Iterator &operator ++() {
                 if(currentIt->next != nullptr) {
                     currentIt = currentIt->next;
-                    size_iterator++;
                     return *this; }
                 throw std::runtime_error("Debug ++()"); }
             //Перегрузка посфиксного и префиксного декремента
             Iterator &operator--(int) {
                 if(currentIt != beginIt) {
-                    this->currentIt = currentIt->prev;
-                    size_iterator--; }
+                    this->currentIt = currentIt->prev; }
                 return *this; }
             Iterator &operator--() {
                 if(currentIt != beginIt) {
-                    this->currentIt = currentIt->prev;
-                    size_iterator--; }
+                    this->currentIt = currentIt->prev; }
                 return *this; }
             //Перегрузка оператора вывода
             friend std::ostream &operator<<(std::ostream &out, const Iterator &it){
@@ -93,11 +96,21 @@ public:
            //Размер итератора
            size_t size(){
                if(this->beginIt != nullptr){
-                   size_iterator = 1;
+//                   endIt->next = nullptr;
+
+                   endIt = beginIt;
+                   while(endIt->next != nullptr){
+                       if(endIt->next == &last){
+                           size_iterator = 0;
+                       }
+                       endIt = endIt->next; }
+
+                   size_iterator = 0;
                    currentIt = beginIt;
-                   while(currentIt->next != nullptr){
+                   while(currentIt != nullptr){
                        currentIt = currentIt->next;
                        size_iterator++; }
+
                     return this->size_iterator; }
                throw std::runtime_error("List is empty!"); }
         private:
@@ -188,7 +201,8 @@ void List<T>::show_node(uint32_t index) {
 
 template <class T>
 void List<T>::print_all() {
-                for (auto curPos = begin; curPos != end->next ; curPos = curPos->next) {
+                end->next = nullptr;
+                for (auto curPos = begin; curPos != nullptr ; curPos = curPos->next) {
                         std::cout << "List node is: " << curPos->data << std::endl;
                 }
 }
