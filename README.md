@@ -1,2 +1,2 @@
 # Doubly-Linked-List
-Doubly linked list with iterator
+Doubly linked list / iterator
