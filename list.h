@@ -58,8 +58,8 @@ public:
                 throw std::runtime_error("List is empty!"); }
             //Перегрузка посфиксного и префиксного инкремента
             Iterator &operator++(int){
-                if(currentIt != endIt){
-                    this->currentIt = currentIt->next;
+                if(currentIt->next != nullptr) {
+                    currentIt = currentIt->next;
                     return *this; }
                 throw std::runtime_error("Debug ++(int)"); }
             Iterator &operator ++() {
@@ -104,6 +104,17 @@ public:
                        size_iterator++; }
                     return this->size_iterator; }
                throw std::runtime_error("List is empty!"); }
+           //Добаление элемента
+           void insert(const T &value) {
+                if(this->currentIt != beginIt){
+                    auto *newElem = new elementList<T>(value);
+                    newElem->prev = this->currentIt->prev;
+                    newElem->next = currentIt;
+                    currentIt->prev->next = newElem;
+                    currentIt->prev = newElem;
+                }
+                std::runtime_error("Iterator has one element!");
+           }
         private:
             size_t size_iterator{ 0 };
             elementList<T> last;

@@ -66,5 +66,21 @@ int main()
 
     std::cout << it.size() << std::endl;
 
+    it.begin();
+    it++;
+    it++;
+    it.insert("something");
+
+    try{
+        for(auto i : it){
+            std::cout << i << std::endl;
+        }
+    }
+    catch(const std::exception &exept){
+        std::cout << exept.what() << std::endl;
+    }
+
+    std::cout << it.size() << std::endl;
+
     return 0;
 }
