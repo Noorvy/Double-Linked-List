@@ -11,15 +11,6 @@ public:
         elementList<T> *next{ nullptr };  //ptr to next element
         explicit elementList(const T& datastr) : data{ datastr } {}
         elementList(){}
-        elementList<T> &operator=(const elementList<T> &el){
-            this->data = &el.data;
-            this->prev = &el.prev;
-            this->next = &el.next;
-            return *this;
-        }
-        friend bool &operator ==(const elementList<T> &e1, const elementList<T> &e2){
-            return (e1.data==e2.data && e1.prev==e2.prev && e1.next==e2.next);
-        }
 };
 
 
@@ -35,100 +26,72 @@ public:
         class Iterator
         {
         public:
-            const T &front;
-            const T &back;
-            explicit Iterator(List<T> &list) : front{ list.begin->data }, back{ list.end->data } {
-                    beginIt = list.begin;
-                    endIt = list.end;}  //"Привязываемся" к списку
-            //Возврат итератора с текущим указателем элемаента на начале
-            Iterator begin(){
-                if(this->beginIt != nullptr) {
-                    currentIt = beginIt;
-                    return *this; }
-                throw std::runtime_error("List is empty!"); }
-            //Возврат итератора с текущим указателем элемаента на конце
-            Iterator end() {
-                if(this->beginIt != nullptr) {
-                    endIt = beginIt;
-                    while(endIt->next != nullptr){
-                        endIt = endIt->next;}
-                    endIt->next = &last;
-                    currentIt = endIt->next;
-                    return *this; }
-                throw std::runtime_error("List is empty!"); }
-            //Перегрузка посфиксного и префиксного инкремента
+            explicit Iterator(List<T> &list) {
+                currentIt = list.begin;
+            }  //"Привязываемся" к списку
             Iterator &operator++(int){
-                if(currentIt->next != nullptr) {
-                    currentIt = currentIt->next;
-                    return *this; }
-                throw std::runtime_error("Debug ++(int)"); }
+                this->currentIt = currentIt->next;
+                return *this; }
             Iterator &operator ++() {
-                if(currentIt->next != nullptr) {
-                    currentIt = currentIt->next;
-                    return *this; }
-                throw std::runtime_error("Debug ++()"); }
+                currentIt = currentIt->next;
+                return *this; }
             //Перегрузка посфиксного и префиксного декремента
             Iterator &operator--(int) {
-                if(currentIt != beginIt) {
-                    this->currentIt = currentIt->prev; }
+                this->currentIt = currentIt->prev;
                 return *this; }
             Iterator &operator--() {
-                if(currentIt != beginIt) {
+                if(currentIt != nullptr) {
                     this->currentIt = currentIt->prev; }
                 return *this; }
             //Перегрузка оператора вывода
             friend std::ostream &operator<<(std::ostream &out, const Iterator &it){
-                if (it.beginIt != nullptr){
-                    out << "Iterator current node is: " << it.currentIt->data; }
-                return out; }
+                    out << "Iterator current node is: " << it.currentIt->data;
+                return out;}
             //Перегрузка операторов сравнения
            friend bool operator==(const Iterator &it1, const Iterator &it2) {
                 return (it1.currentIt->data==it2.currentIt->data); }
            friend bool operator!=(const Iterator &it1, const Iterator &it2) {
                 return !(it1.currentIt->data==it2.currentIt->data); }
            //Перегрузка остальных операторов
-           Iterator operator*() { return *this; }
+           Iterator &operator*() { return *this; }
            Iterator *operator->() { return this; }
-
-           void print(){ std::cout << "end node of iterator: " << endIt->data << std::endl; }
-           //Размер итератора
-           size_t size(){
-               if(endIt->next == &last) {
-                    endIt->next = nullptr; }
-               if(this->beginIt != nullptr) {
-                   endIt = beginIt;
-                   size_iterator = 0;
-                   currentIt = beginIt;
-                   while(currentIt != nullptr) {
-                       currentIt = currentIt->next;
-                       size_iterator++; }
-                    return this->size_iterator; }
-               throw std::runtime_error("List is empty!"); }
-           //Добаление элемента
-           void insert(const T &value) {
-                if(this->currentIt != beginIt){
-                    auto *newElem = new elementList<T>(value);
-                    newElem->prev = this->currentIt->prev;
-                    newElem->next = currentIt;
-                    currentIt->prev->next = newElem;
-                    currentIt->prev = newElem;
-                }
-                std::runtime_error("Iterator has one element!");
-           }
-        private:
-            size_t size_iterator{ 0 };
-            elementList<T> last;
+        //private:
+        public:
             elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
-            elementList<T> *beginIt{ nullptr };   //Начальный элемент итератора
-            elementList<T> *endIt{ nullptr };    //Конечный элемент итератора(следующий после конца списка)
         };
 
 private:
         elementList<T> *begin{ nullptr };
         elementList<T> *end{ nullptr };
         uint32_t count{ 0 }; //count nodes in list
-};
+public:
+//Copy constructor
+        List<T> &operator =(const List<T> &other){
+            this->begin = other.begin;
+            this->end = other.end;
+            this->count = other.count;
+        }
 
+        explicit List(const List &other){
+            this->begin = other.begin;
+            this->count = other.count;
+            this->end = other.end;
+        }
+//Initializer_list constructor
+        explicit List(const std::initializer_list<T> &other){
+            this->begin = new elementList<T>{};
+            auto *curPos = this->begin;
+
+            for (auto i : other){
+                curPos->next = new elementList<T>{ };
+                curPos->data = i;
+                this->end = curPos;
+                curPos = curPos->next;
+                curPos->prev = this->end;}
+        }
+
+        List(){}
+};
 
 template <class T>
 void List<T>::push_back(const T& str) {
@@ -143,6 +106,8 @@ void List<T>::push_back(const T& str) {
         end = newElem;
         count++;
 }
+//
+//[] [] [] [] [] []
 //Add node to number of list (index)
 template <class T>
 void List<T>::insert(const T& str, uint32_t index) {
@@ -160,6 +125,8 @@ void List<T>::insert(const T& str, uint32_t index) {
 }
 
 //Delete node
+//[] [] [] [] [] []
+// []
 template <class T>
 void List<T>::delete_node(uint32_t index) {
         if (index > count) {
