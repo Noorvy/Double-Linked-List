@@ -1,86 +1,35 @@
 #include <iostream>
 #include "list.h"
-#include <array>
-///////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////////
 int main()
 {
-    List<std::string> list;
-    list.push_back("raz");
-    list.push_back("dva");
-    list.push_back("tri");
+   List<std::string> list{};
+   list.push_back("A");
+   list.push_back("B");
+   list.print_all();
 
-    auto it = List<std::string>::Iterator(list);
+   List<std::string> init_list{list};
+   init_list.print_all();
 
-    try{
-        for(auto i : it){
-            std::cout << i << std::endl;
-        }
-    }
-    catch(const std::exception &exept){
-        std::cout << exept.what() << std::endl;
-    }
+   auto it = List<std::string>::Iterator(list);
+   it++;
+   std::cout << "Iterator Plus: " << it << std::endl;
+   it--;
+   std::cout << "Iterator Minus: " << it << std::endl;
 
-    std::cout << it.size() << std::endl;
-    list.print_all();
-    list.push_back("cheture");
-    list.push_back("pyat'");
+   List<std::string> in_list{"Aa", "Bb", "Cc", "Dd", "Ff", "Gg"};
+   std::cout << "Iterator after initializer list: " << std::endl;
+   in_list.print_all();
 
-    std::cout << "add some nodes to list" << std::endl;
+/*
+   std::list<std::string> std_list;
+   std_list.push_back("raz");
+   std_list.push_back("dva");
 
-    try{
-        for(auto i : it) {
-            std::cout << i << std::endl;
-        }
-    }
-    catch(const std::exception &exept){
-        std::cout << exept.what() << std::endl;
-    }
+   std::list<std::string>::iterator std_it = std_list.begin();
 
-    std::cout << it.size() << std::endl;
-    list.print_all();
-
-    list.push_back("shest'");
-    list.push_back("sem'");
-
-    std::cout << it.size() << std::endl;
-
-
-    list.print_all();
-
-    list.push_back("vosem'");
-    list.push_back("devayt'");
-
-    std::cout << it.size() << std::endl;
-    list.print_all();
-
-    try{
-        for(auto i : it) {
-            std::cout << i << std::endl;
-        }
-    }
-    catch(const std::exception &exept){
-        std::cout << exept.what() << std::endl;
-    }
-
-    std::cout << it.size() << std::endl;
-
-    it.begin();
-    it++;
-    it++;
-    it.insert("something");
-
-    try{
-        for(auto i : it){
-            std::cout << i << std::endl;
-        }
-    }
-    catch(const std::exception &exept){
-        std::cout << exept.what() << std::endl;
-    }
-
-    std::cout << it.size() << std::endl;
-
-    return 0;
+   std_it++;
+   std::cout << *std_it << std::endl;
+*/
+   return 0;
 }
