@@ -21,6 +21,23 @@ int main()
    std::cout << "Iterator after initializer list: " << std::endl;
    in_list.print_all();
 
+   auto second_it = List<std::string>::Iterator(in_list);
+   std::cout << second_it << std::endl;
+   second_it++;
+   second_it++;
+
+   std::cout << second_it << std::endl;
+   in_list.insert(second_it, "insert_value");
+   in_list.print_all();
+   second_it++;
+   in_list.erase(second_it);
+   std::cout << "\n";
+
+
+   in_list.clear();
+   in_list.print_all();
+
+
 /*
    std::list<std::string> std_list;
    std_list.push_back("raz");

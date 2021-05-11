@@ -17,17 +17,12 @@ public:
 template <class T>
 class List {
 public:
-        void push_back(const T& str); //Add node to end of list*чер
-        void insert(const T& str, uint32_t index);
-        void delete_node(uint32_t index);
-        void show_node(uint32_t index);
-        void print_all();
-
         class Iterator
         {
         public:
-            explicit Iterator(List<T> &list) {
-                currentIt = list.begin;
+            Iterator (){}
+            explicit Iterator(const List<T> &list) {
+                currentIt = list.front;
             }  //"Привязываемся" к списку
             Iterator &operator++(int){
                 this->currentIt = currentIt->next;
@@ -40,8 +35,7 @@ public:
                 this->currentIt = currentIt->prev;
                 return *this; }
             Iterator &operator--() {
-                if(currentIt != nullptr) {
-                    this->currentIt = currentIt->prev; }
+                this->currentIt = currentIt->prev;
                 return *this; }
             //Перегрузка оператора вывода
             friend std::ostream &operator<<(std::ostream &out, const Iterator &it){
@@ -53,123 +47,161 @@ public:
            friend bool operator!=(const Iterator &it1, const Iterator &it2) {
                 return !(it1.currentIt->data==it2.currentIt->data); }
            //Перегрузка остальных операторов
-           Iterator &operator*() { return *this; }
-           Iterator *operator->() { return this; }
+           Iterator &operator*() { return *this->currentIt; }
+           Iterator *operator->() { return this->currentIt; }
         //private:
         public:
             elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
         };
 
 private:
-        elementList<T> *begin{ nullptr };
-        elementList<T> *end{ nullptr };
+        elementList<T> *front{ nullptr };
+        elementList<T> *back{ nullptr };
         uint32_t count{ 0 }; //count nodes in list
 public:
+        void push_back(const T& str); //Add node to end of list*чер
+        void erase(Iterator it);
+        void print_all();
+        void clear();
+        void insert(const Iterator &it, const T &value);
+        Iterator begin();
+        Iterator end();
 //Copy constructor
         List<T> &operator =(const List<T> &other){
-            this->begin = other.begin;
-            this->end = other.end;
-            this->count = other.count;
+            if(this != this){
+                this->clear();
+                this->front = other.front;
+                this->back = other.back;
+                this->count = other.count;}
         }
 
         explicit List(const List &other){
-            this->begin = other.begin;
+            this->front = other.front;
             this->count = other.count;
-            this->end = other.end;
+            this->back = other.back;
         }
 //Initializer_list constructor
         explicit List(const std::initializer_list<T> &other){
-            this->begin = new elementList<T>{};
-            auto *curPos = this->begin;
+            this->front = new elementList<T>{};
+            this->back = new elementList<T>{};
+            this->back = this->front;
+            auto *curPos = this->front;
+            count++;
 
-            for (auto i : other){
+            for (const auto &i : other){
                 curPos->next = new elementList<T>{ };
                 curPos->data = i;
-                this->end = curPos;
+                this->back = curPos;
                 curPos = curPos->next;
-                curPos->prev = this->end;}
+                curPos->prev = this->back;
+                count++;}
         }
 
         List(){}
+
 };
 
 template <class T>
+typename List<T>::Iterator List<T>::begin(){
+    if (front != nullptr){
+        Iterator it;
+        it.currentIt = this->front;
+        return it;}
+}
+
+template <class T>
+typename List<T>::Iterator List<T>::end(){
+    if (front != nullptr){
+        Iterator it;
+        it.currentIt = this->back;
+        return it;}
+}
+
+template <class T>
 void List<T>::push_back(const T& str) {
-        if (begin == nullptr) {
-                begin = new elementList<T>(str);
-                end = begin;
+        if (front == nullptr) {
+                front = new elementList<T>(str);
+                back = front;
+                count++;
                 return;
         }
         auto * newElem = new elementList<T>(str);
-        end->next = newElem;
-        newElem->prev = end;
-        end = newElem;
+        back->next = newElem;
+        newElem->prev = back;
+        back = newElem;
         count++;
 }
 //
 //[] [] [] [] [] []
-//Add node to number of list (index)
 template <class T>
-void List<T>::insert(const T& str, uint32_t index) {
-        if (index > count) {
-                throw std::runtime_error("Index is not correct!");
-        }
-        auto *temp = new elementList<T>(str);
-        auto *curPos = begin;
-        for (uint32_t i = 0; i < index; ++i) {
-                curPos = curPos->next;
-        }
-        temp->prev = curPos->prev;
-        temp->next = curPos;
-        ++count;
+void List<T>::insert(const Iterator &it, const T &value){
+    if(it.currentIt != nullptr && it.currentIt != this->front){
+        //Initializer new element and interim iterator
+        auto *newElem = new elementList<T>{value};
+        auto interim = it;
+        interim.currentIt = it.currentIt->prev;
+        //connect new node with other list element
+        it.currentIt->prev = newElem;
+        interim.currentIt->next = newElem;
+        newElem->next = it.currentIt;
+        newElem->prev = interim.currentIt;}
+    else if (it.currentIt != nullptr && it.currentIt == front){
+        auto *newElem = new elementList<T>{value};
+        it.currentIt->prev = newElem;
+        newElem->next = it.currentIt;
+        this->front = newElem;}
 }
 
 //Delete node
 //[] [] [] [] [] []
-// []
+//       []
 template <class T>
-void List<T>::delete_node(uint32_t index) {
-        if (index > count) {
-                throw std::runtime_error("Index is not correct!");
-        }
-        auto *curPos = begin;
-        for (uint32_t i = 0; i < index; ++i) {
-                curPos = curPos->next;
-        }
-        if (curPos != end)
-        {
-                auto *next = curPos->next;
-                next->prev = curPos->prev;
-        }
-        if (curPos != begin)
-        {
-                auto *prev = curPos->prev;
-                prev->next = curPos->next;
-        }
-        delete curPos;
+void List<T>::erase(Iterator it) {
+    if(it.currentIt != nullptr){
+        if(it.currentIt == this->front){
+            this->front = it.currentIt->next;
+            this->front->prev = nullptr;
+            it.currentIt = nullptr;
+            count--;
+            return;}
+        else if(it.currentIt == this->back){
+            this->back = it.currentIt->prev;
+            this->back->next = nullptr;
+            it.currentIt = nullptr;
+            count--;
+            return;}
+        auto interim = it;
+        interim.currentIt = it.currentIt->prev;
+        interim.currentIt->next = it.currentIt->next;
+        it.currentIt->next->prev = interim.currentIt;
+        delete it.currentIt;
+        count--;}
 }
 
-//Show node
+//Clear list
 template <class T>
-void List<T>::show_node(uint32_t index) {
-        if (index > count) {
-                std::cout << "Warning: Index is not correct!" << std::endl;
-                return;
-        }
-        auto curPos = begin;
-        for (uint32_t i = 0; i < index; ++i) {
-                curPos = curPos->next;
-        }
-        std::cout << index << " node is: " << curPos->data << std::endl;
+void List<T>::clear(){
+    Iterator it{this->begin()};
+    ++it;
+    for(;it.currentIt != nullptr; ++it){
+        delete it.currentIt->prev;
+    }
+    delete this->back;
+    this->front = nullptr;
+    this->back = nullptr;
 }
 
 
 template <class T>
 void List<T>::print_all() {
-                end->next = nullptr;
-                for (auto curPos = begin; curPos != nullptr ; curPos = curPos->next) {
-                        std::cout << "List node is: " << curPos->data << std::endl;
-                }
+    if(this->front == nullptr){
+        std::cout << "List is empty!" << std::endl;
+        return;
+    }
+    back->next = nullptr;
+    for (auto curPos = front; curPos != nullptr ; curPos = curPos->next) {
+            std::cout << "List node is: " << curPos->data << std::endl;
+    }
 }
 
 
