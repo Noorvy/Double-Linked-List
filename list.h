@@ -9,7 +9,7 @@ public:
         T data;    //Data
         elementList<T> *prev{ nullptr };  //ptr to prewie element
         elementList<T> *next{ nullptr };  //ptr to next element
-        explicit elementList(const T& datastr) : data{ datastr } {}
+        explicit elementList(const T &datastr) : data{ datastr } {}
         elementList(){}
 };
 
@@ -23,7 +23,7 @@ public:
             Iterator (){}
             explicit Iterator(const List<T> &list) {
                 currentIt = list.front;
-            }  //"Привязываемся" к списку
+            }
             Iterator &operator++(int){
                 this->currentIt = currentIt->next;
                 return *this; }
@@ -49,8 +49,12 @@ public:
            //Перегрузка остальных операторов
            Iterator &operator*() { return *this->currentIt; }
            Iterator *operator->() { return this->currentIt; }
-        //private:
-        public:
+           Iterator &operator = (const Iterator &other){
+               if(this != &other){
+                    this->currentIt = nullptr;
+                    this->currentIt = other.currentIt;}
+               return *this;
+           }
             elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
         };
 
@@ -68,11 +72,26 @@ public:
         Iterator end();
 //Copy constructor
         List<T> &operator =(const List<T> &other){
-            if(this != this){
+            if(this != &other){
                 this->clear();
-                this->front = other.front;
-                this->back = other.back;
-                this->count = other.count;}
+                this->back = new elementList<T>{};
+                this->back = other.front;
+                auto newElem = new elementList<T> {other.front->data};
+                newElem->prev = nullptr;
+                this->front = new elementList<T>{};
+                this->front = newElem;
+
+                while(back->next){
+                    newElem->next = new elementList<T> {back->next->data};
+                    auto enterim = newElem;
+                    newElem = newElem->next;
+                    newElem->prev = enterim;
+                    back = back->next;}
+
+                back = newElem;
+                this->count = other.count;
+            }
+            return *this;
         }
 
         explicit List(const List &other){
@@ -99,22 +118,26 @@ public:
 
         List(){}
 
+        ~List(){
+            while (front){
+                auto next = front->next;
+                delete front;
+                front = next;}
+        }
 };
 
 template <class T>
 typename List<T>::Iterator List<T>::begin(){
-    if (front != nullptr){
-        Iterator it;
-        it.currentIt = this->front;
-        return it;}
+    Iterator it;
+    it.currentIt = this->front;
+    return it;
 }
 
 template <class T>
 typename List<T>::Iterator List<T>::end(){
-    if (front != nullptr){
-        Iterator it;
-        it.currentIt = this->back;
-        return it;}
+    Iterator it;
+    it.currentIt = this->back;
+    return it;
 }
 
 template <class T>
@@ -144,12 +167,14 @@ void List<T>::insert(const Iterator &it, const T &value){
         it.currentIt->prev = newElem;
         interim.currentIt->next = newElem;
         newElem->next = it.currentIt;
-        newElem->prev = interim.currentIt;}
-    else if (it.currentIt != nullptr && it.currentIt == front){
+        newElem->prev = interim.currentIt;
+        this->count++;}
+    else if (it.currentIt != nullptr && it.currentIt == this->front){
         auto *newElem = new elementList<T>{value};
         it.currentIt->prev = newElem;
         newElem->next = it.currentIt;
-        this->front = newElem;}
+        this->front = newElem;
+        this->count++;}
 }
 
 //Delete node
@@ -181,14 +206,11 @@ void List<T>::erase(Iterator it) {
 //Clear list
 template <class T>
 void List<T>::clear(){
-    Iterator it{this->begin()};
-    ++it;
-    for(;it.currentIt != nullptr; ++it){
-        delete it.currentIt->prev;
-    }
-    delete this->back;
-    this->front = nullptr;
-    this->back = nullptr;
+    while (front){
+        auto next = front->next;
+        delete front;
+        front = next;}
+    count = 0;
 }
 
 

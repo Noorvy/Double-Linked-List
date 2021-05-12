@@ -1,5 +1,6 @@
 #include <iostream>
 #include "list.h"
+#include <list>
 
 int main()
 {
@@ -12,11 +13,12 @@ int main()
    init_list.print_all();
 
    auto it = List<std::string>::Iterator(list);
-   it++;
+   it++;    //Проверил арифметику итераторов
    std::cout << "Iterator Plus: " << it << std::endl;
    it--;
    std::cout << "Iterator Minus: " << it << std::endl;
 
+   //Проверил list_inicialization
    List<std::string> in_list{"Aa", "Bb", "Cc", "Dd", "Ff", "Gg"};
    std::cout << "Iterator after initializer list: " << std::endl;
    in_list.print_all();
@@ -27,26 +29,39 @@ int main()
    second_it++;
 
    std::cout << second_it << std::endl;
+   //Проверка insert
    in_list.insert(second_it, "insert_value");
    in_list.print_all();
    second_it++;
+
+   //Проверка удаления значения по итератору
    in_list.erase(second_it);
    std::cout << "\n";
 
 
-   in_list.clear();
+   in_list.clear(); //Проверка чистки списка (список весь пустой, проверил через отладчик))
    in_list.print_all();
 
+   list.push_back("Tri");
+   list.push_back("Chetyre");
+   it++;
+   list.erase(it); //Удаление по итератору после инкремента итератора
 
-/*
-   std::list<std::string> std_list;
-   std_list.push_back("raz");
-   std_list.push_back("dva");
+   in_list = list; //Проверка перегрузки оператора присваивания
 
-   std::list<std::string>::iterator std_it = std_list.begin();
+   second_it = in_list.begin(); //Проверка возвращаемого итератора на 1-й элемент списка
+   second_it++;
+   std::cout << second_it << std::endl;
+   //Проверка методов после оператора копирования
+   in_list.insert(second_it, "new value!");
+   in_list.erase(second_it);
+   list.print_all();
+   std::cout << "\n";
+   in_list.print_all();
 
-   std_it++;
-   std::cout << *std_it << std::endl;
-*/
+   //Проверка возращаемого итератора на конец списка
+   second_it = in_list.end();
+   std::cout << second_it << std::endl;
+
    return 0;
 }
