@@ -25,10 +25,12 @@ public:
                 currentIt = list.front;
             }
             Iterator &operator++(int){
-                this->currentIt = currentIt->next;
+                if(currentIt->next != nullptr){
+                    this->currentIt = currentIt->next;}
                 return *this; }
             Iterator &operator ++() {
-                currentIt = currentIt->next;
+                if(currentIt->next != nullptr){
+                    currentIt = currentIt->next;}
                 return *this; }
             //Перегрузка посфиксного и префиксного декремента
             Iterator &operator--(int) {
@@ -47,20 +49,16 @@ public:
            friend bool operator!=(const Iterator &it1, const Iterator &it2) {
                 return !(it1.currentIt->data==it2.currentIt->data); }
            //Перегрузка остальных операторов
-           Iterator &operator*() { return *this->currentIt; }
-           Iterator *operator->() { return this->currentIt; }
-           Iterator &operator = (const Iterator &other){
-               if(this != &other){
-                    this->currentIt = nullptr;
-                    this->currentIt = other.currentIt;}
-               return *this;
-           }
-            elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
+           T &operator*() { return this->currentIt->data; }
+           T *operator->() { return this->currentIt->data; }
+
+           elementList<T> *currentIt{ nullptr };  //Итератор для перебора элемента списка
         };
 
 private:
         elementList<T> *front{ nullptr };
         elementList<T> *back{ nullptr };
+        elementList<T> *empty{ nullptr };
         uint32_t count{ 0 }; //count nodes in list
 public:
         void push_back(const T& str); //Add node to end of list*чер
@@ -123,6 +121,7 @@ public:
                 auto next = front->next;
                 delete front;
                 front = next;}
+            delete empty;
         }
 };
 
@@ -136,7 +135,14 @@ typename List<T>::Iterator List<T>::begin(){
 template <class T>
 typename List<T>::Iterator List<T>::end(){
     Iterator it;
-    it.currentIt = this->back;
+    if (!empty){
+        empty = new elementList<T>{};
+        it.currentIt = empty;
+        back->next = it.currentIt;}
+    else{
+        it.currentIt = empty;
+        back->next = it.currentIt;
+    }
     return it;
 }
 
@@ -210,6 +216,7 @@ void List<T>::clear(){
         auto next = front->next;
         delete front;
         front = next;}
+    delete empty;
     count = 0;
 }
 

@@ -61,7 +61,13 @@ int main()
 
    //Проверка возращаемого итератора на конец списка
    second_it = in_list.end();
-   std::cout << second_it << std::endl;
+
+   //Цикл работает исправно: бегин и енд правильные, арифметика работает правильно
+   for(second_it = in_list.begin(); second_it != in_list.end(); second_it++){
+        if (*second_it == "new value!"){
+            std::cout << "Okay: " << *second_it << std::endl;
+        }
+   }
 
    return 0;
 }
